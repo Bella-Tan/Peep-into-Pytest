@@ -1,0 +1,47 @@
+1. Project Structure as(Strongly suggested):
+  src/
+      app/
+        __init__.py
+        app.py
+        view.py
+        ...
+  tests/
+      test_app.py
+      test_view.py
+      ...
+      
+2.Test Case example:
+  # test case must in test_*.py or *_test.py file
+  import pytest
+
+  def test_zero_division():
+      with pytest.raises(ZeroDivisionError):
+          1 / 0
+  def test_recursion_depth():
+    with pytest.raises(RuntimeError) as excinfo:
+        def f():
+            f()
+        f()
+    assert 'maximum recursion' in str(excinfo.value)
+  def myfunc():
+    raise ValueError("Exception 123 raised")
+
+  def test_match():
+      with pytest.raises(ValueError, match=r'.* 123 .*'):
+          myfunc()
+        
+ 3.Run Test:
+  commands to execute test cases:
+  pytest   [ --pyargs dir]  # if arguments are none,collection starts from testpaths (if configured) or the current directory,Recurse into directories, unless they match norecursedirs.
+  python -m pytest #
+  
+  Note
+    You can use Python3 namespace packages (PEP420) for your application but pytest will still perform test package name discovery based on the presence of __init__.py files. If you use one of the two recommended file system layouts above but leave away the __init__.py files from your directories it should just work on Python3.3 and above. From “inlined tests”, however, you will need to use absolute imports for getting at your application code.
+
+  Note
+    If pytest finds an “a/b/test_module.py” test file while recursing into the filesystem it determines the import name as follows:
+      1.determine basedir: this is the first “upward” (towards the root) directory not containing an __init__.py. If e.g. both a and b contain an __init__.py file then the parent directory of a will become the basedir.
+      2.perform sys.path.insert(0, basedir) to make the test module importable under the fully qualified import name.
+      3.import a.b.test_module where the path is determined by converting path separators / into “.” characters. This means you must follow the convention of having directory and file names map directly to the import names.
+      4.The reason for this somewhat evolved importing technique is that in larger projects multiple test modules might import from each other and thus deriving a canonical import name helps to avoid surprises such as a test module getting imported twice.
+
